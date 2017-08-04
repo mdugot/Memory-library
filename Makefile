@@ -48,5 +48,5 @@ check:
 
 .PHONY: test
 test:
-	rm test
+	rm -f test
 	$(CC) $(CFLAGS) -I$(INC_PATH)  -L. -l$(PREFIX) -o test test.c
