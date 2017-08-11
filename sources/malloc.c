@@ -1,87 +1,115 @@
-#include <unistd.h>
-#include <sys/mman.h>
-#include <sys/resource.h>
 #include "libft_malloc.h"
 
-void putstr(char *str) {
-	int i = 0;
-	while (str[i] != 0)
-		i++;
-	write(1, str, i);
-}
+static memory_annuary annuary = {0, 0, 0, 0};
 
-void putint(unsigned long long int n, unsigned int base, char* end) {
-	char s[] = "0123456789ABCDEF";
-	char tmp;
-	unsigned long long int i = 1;
-	unsigned long long int m = n;
-
-	if (n == 0)
-	{
-		write(1, "0", 1);
-		putstr(end);
-		return;
-	}
-
-	while (m >= base) {
-		m /= base;
-		i *= base;
-	}
-	while (i > 0) {
-		tmp = s[n / i];
-		write(1, &tmp, 1);
-		n %= i;
-		i /= base;
-	}
-	putstr(end);
-}
-
-void print_content(char *memory, size_t len)
+void alloc_info()
 {
-	size_t i = 0;
-	int rows = 16;
-
-	while (i < len) {
-		putint((unsigned long long)memory[i], 16, " ");
-		i++;
-		if (i % rows == 0)
-			putstr("\n");
-	}
-	putstr("\n");
-}
-
-void malloc() {
 	struct rlimit rl;
+	size_t ps = getpagesize();
+	putstr("\n------------\n");
 	putstr("page size : ");
-	putint(getpagesize(), 16, "\n");
+	putint_endln(ps, 16, "", 1);
 	if (getrlimit(RLIMIT_DATA, &rl) == -1)
 		putstr("error getrlimit\n");
 	putstr("data limit current : ");
-	putint(rl.rlim_cur, 16, "\n");
+	putint_endln(rl.rlim_cur, 16, "", 1);
 	putstr("data limit max : ");
-	putint(rl.rlim_max, 16, "\n");
+	putint_endln(rl.rlim_max, 16, "", 1);
+	if (getrlimit(RLIMIT_MEMLOCK, &rl) == -1)
+		putstr("error getrlimit\n");
+	putstr("melock limit current : ");
+	putint_endln(rl.rlim_cur, 16, "", 1);
+	putstr("memlock limit max : ");
+	putint_endln(rl.rlim_max, 16, "", 1);
+	if (getrlimit(RLIMIT_RSS, &rl) == -1)
+		putstr("error getrlimit\n");
+	putstr("rss limit current : ");
+	putint_endln(rl.rlim_cur, 16, "", 1);
+	putstr("rss limit max : ");
+	putint_endln(rl.rlim_max, 16, "", 1);
 
-	size_t len = 64;
+	putstr("------------\n\n");
+}
+
+void test() {
+
+	alloc_info();
+
+	size_t len = 32;
 	char *ad = mmap(0, len, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	char *ad2 = mmap(0, len, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (ad == MAP_FAILED)
 		putstr("map failed\n");
 	putstr("adress : ");
-	putint((long long int)ad, 16, "\n");
+	putint_endln((long long int)ad, 16, "", 1);
 	ad[3] = '*';
 	ad2[1] = 'a';
 	putstr("content : \n");
-	print_content(ad, len);
+	dump_content(ad, len);
 	putstr("adress second map : ");
-	putint((long long int)ad2, 16, "\n");
+	putint_endln((long long int)ad2, 16, "", 1);
 	putstr("content second map: \n");
-	print_content(ad2, len);
+	dump_content(ad2, len);
 	if (munmap(ad, len) == -1)
 		putstr("munmap error");
 	char *ad3 = mmap(0, len, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	ad3[16] = ' ';
 	putstr("adress third map after unmap: ");
-	putint((long long int)ad3, 16, "\n");
+	putint_endln((long long int)ad3, 16, "", 1);
 	putstr("content third map after unmap: \n");
-	print_content(ad3, len);
+	dump_content(ad3, len);
+
+	alloc_info();
+}
+
+memory_annuary	*get_annuary()
+{
+	return &annuary;
+}
+
+static void *malloc_on_page(size_t len, memory_page** page)
+{
+	memory_page *tmp_page;
+	memory_allocation *tmp_mem;
+	size_t size;
+
+	if (*page == 0)
+	{
+		size = get_page_size(len);
+		tmp_page = new_memory_page(0, size, len);
+		*page = tmp_page;
+		return (tmp_page->content->content);
+	}
+	tmp_mem = create_allocation(*page, len);
+	return tmp_mem->content;
+}
+
+void *malloc(size_t len)
+{
+	if (annuary.page_size == 0)
+		annuary.page_size = getpagesize();
+	if (len <= TINY_ALLOCATION)
+		return malloc_on_page(len, &(annuary.tiny));
+	if (len <= SMALL_ALLOCATION)
+		return malloc_on_page(len, &(annuary.small));
+	return malloc_on_page(len, &(annuary.large));
+}
+
+void	show_alloc_mem()
+{
+	show_alloc_page(annuary.tiny, "TINY");
+	show_alloc_page(annuary.small, "SMALL");
+	show_alloc_page(annuary.large, "LARGE");
+}
+
+void	dump_alloc_mem(void *ad)
+{
+	if (dump_alloc_page(ad, annuary.tiny, "TINY"))
+		return ;
+	if (dump_alloc_page(ad, annuary.small, "SMALL"))
+		return ;
+	if (dump_alloc_page(ad, annuary.large, "LARGE"))
+		return ;
+	putint((unsigned long long)ad, 16, "0x", 1);
+	putstr(" : no memory allocation to this adress\n");
 }
