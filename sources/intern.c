@@ -53,7 +53,7 @@ memory_allocation	*create_allocation(memory_page *page, size_t len)
 		ad = search_free_space(page, page->content, len, &last);
 	if (ad == 0)
 	{
-		new_page = new_memory_page(page, get_page_size(len), len);
+		new_page = new_memory_page(get_last_page(page), get_page_size(len), len);
 		return new_page->content;
 	}
 	return new_allocation(ad, len, last);
@@ -64,6 +64,7 @@ memory_page	*new_memory_page(memory_page *last, size_t size, size_t len)
 	memory_page page;
 	void *ad;
 
+	putint_endln((unsigned long long)last, 16, "0x", 1);
 	page.size = size;
 	page.next = 0;
 	page.adress = mmap(0, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);

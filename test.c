@@ -7,6 +7,12 @@ int main(int argc, char **argv)
 	char *test = malloc(2);
 	char *test2 = malloc(10);
 	char *test3 = malloc(33);
+	malloc(10000);
+	malloc(999000);
+	for (int i = 0; i < 1000; i++)
+	{
+		malloc(1000);
+	}
 	test[0] = 'O';
 	test[1] = 'K';
 	copy_memory(test3, "this is a test\n", 15);

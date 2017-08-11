@@ -44,3 +44,11 @@ size_t	get_page_size(size_t len)
 	return up_round(get_first_size(len));
 }
 
+memory_page	*get_last_page(memory_page *page)
+{
+	if (!page)
+		return 0;
+	if (!page->next)
+		return page;
+	return get_last_page(page->next);
+}
