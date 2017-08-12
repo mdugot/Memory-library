@@ -7,7 +7,7 @@ LIB= lib$(NAME).so
 LINK= lib$(PREFIX).so
 CC= gcc
 CFLAGS= -fno-builtin -Wall -Werror -Wextra
-SRC_NAME= malloc.c memory.c tools.c intern.c show.c print.c
+SRC_NAME= malloc.c memory.c tools.c intern.c show.c print.c free.c
 SRC_PATH= ./sources/
 INC_PATH= ./includes/
 OBJ_NAME= $(SRC_NAME:.c=.o)

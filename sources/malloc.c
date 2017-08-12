@@ -8,7 +8,7 @@ void alloc_info()
 	size_t ps = getpagesize();
 	putstr("\n------------\n");
 	putstr("page size : ");
-	putint_endln(ps, 16, "", 1);
+	putint_endln(ps, 10, "", 1);
 	if (getrlimit(RLIMIT_DATA, &rl) == -1)
 		putstr("error getrlimit\n");
 	putstr("data limit current : ");
@@ -36,8 +36,8 @@ void test() {
 	alloc_info();
 
 	size_t len = 32;
-	char *ad = mmap(0, len, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
-	char *ad2 = mmap(0, len, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	unsigned char *ad = mmap(0, len, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	unsigned char *ad2 = mmap(0, len, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (ad == MAP_FAILED)
 		putstr("map failed\n");
 	putstr("adress : ");
@@ -52,7 +52,7 @@ void test() {
 	dump_content(ad2, len);
 	if (munmap(ad, len) == -1)
 		putstr("munmap error");
-	char *ad3 = mmap(0, len, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	unsigned char *ad3 = mmap(0, len, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	ad3[16] = ' ';
 	putstr("adress third map after unmap: ");
 	putint_endln((long long int)ad3, 16, "", 1);
@@ -77,15 +77,21 @@ static void *malloc_on_page(size_t len, memory_page** page)
 	{
 		size = get_page_size(len);
 		tmp_page = new_memory_page(0, size, len);
+		if (!tmp_page)
+			return 0;
 		*page = tmp_page;
 		return (tmp_page->content->content);
 	}
 	tmp_mem = create_allocation(*page, len);
+	if (!tmp_mem)
+		return 0;
 	return tmp_mem->content;
 }
 
 void *malloc(size_t len)
 {
+	if (len == 0)
+		return 0;
 	if (annuary.page_size == 0)
 		annuary.page_size = getpagesize();
 	if (len <= TINY_ALLOCATION)
@@ -97,6 +103,8 @@ void *malloc(size_t len)
 
 void	show_alloc_mem()
 {
+	if (!annuary.tiny && !annuary.small && ! annuary.large)
+		putstr("NO MEMORY ALLOCATION\n");
 	show_alloc_page(annuary.tiny, "TINY");
 	show_alloc_page(annuary.small, "SMALL");
 	show_alloc_page(annuary.large, "LARGE");
@@ -112,4 +120,11 @@ void	dump_alloc_mem(void *ad)
 		return ;
 	putint((unsigned long long)ad, 16, "0x", 1);
 	putstr(" : no memory allocation to this adress\n");
+}
+
+void	free(void *ad)
+{
+	free_page(ad, annuary.tiny);
+	free_page(ad, annuary.small);
+	free_page(ad, annuary.large);
 }

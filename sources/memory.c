@@ -23,3 +23,14 @@ void clean_memory(char* ad, size_t len)
 		i++;
 	}
 }
+
+int is_in(memory_page* page, void *ad)
+{
+	if (!page->content)
+		return 0;
+	if (ad < (void*)page->content)
+		return 0;
+	if (ad >= page->adress + page->size)
+		return 0;
+	return 1;
+}

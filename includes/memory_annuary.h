@@ -48,8 +48,11 @@ void putint(unsigned long long int n, unsigned int base, char* prefix, int width
 void putint_endln(unsigned long long int n, unsigned int base, char* prefix, int width);
 void putstr(char *str);
 void	show_alloc_page(memory_page* page, char *type);
-void dump_content(char *memory, size_t len);
+void dump_content(unsigned char *memory, size_t len);
 int	dump_alloc_page(void *ad, memory_page* page, char *type);
 memory_page	*get_last_page(memory_page *page);
+void alloc_info();
+int	free_page(void* ad, memory_page *page);
+int is_in(memory_page* page, void *ad);
 
 #endif

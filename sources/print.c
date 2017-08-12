@@ -52,7 +52,7 @@ void putint_endln(unsigned long long int n, unsigned int base, char* prefix, int
 	putstr("\n");
 }
 
-void dump_content(char *memory, size_t len)
+void dump_content(unsigned char *memory, size_t len)
 {
 	size_t i = 0;
 	int rows = 16;

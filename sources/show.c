@@ -51,7 +51,7 @@ int	dump_alloc_page(void *ad, memory_page* page, char *type)
 {
 	if (!page)
 		return 0;
-	if (dump_alloc_memory(ad, page->content, type))
+	if (is_in(page, ad) && dump_alloc_memory(ad, page->content, type))
 		return 1;
 	return dump_alloc_page(ad, page->next, type);
 }

@@ -4,25 +4,23 @@ int main(int argc, char **argv)
 {
 	(void)argc;
 	(void)argv;
-	char *test = malloc(2);
-	char *test2 = malloc(10);
-	char *test3 = malloc(33);
-	malloc(10000);
-	malloc(999000);
-	for (int i = 0; i < 1000; i++)
-	{
-		malloc(1000);
-	}
-	test[0] = 'O';
-	test[1] = 'K';
-	copy_memory(test3, "this is a test\n", 15);
+	size_t len = 1;
+	putint_endln((unsigned long long)sizeof(memory_page), 16, "size of page header : ", 1);
+	putint_endln((unsigned long long)sizeof(memory_allocation), 16, "size of alloc header : ", 1);
+	char *test = malloc(len);
+	char *test2 = malloc(len);
+	char *test3 = malloc(len);
+	char *test4 = malloc(len);
 	show_alloc_mem();
-	dump_alloc_mem(test);
-	dump_alloc_mem(test + 1);
-	dump_alloc_mem(test + 2);
-	dump_alloc_mem(test - 1);
-	dump_alloc_mem(test2);
-	dump_alloc_mem(test3);
-	dump_alloc_mem(argv);
+	(void)test2;
+	(void)test4;
+	free(test);
+	free(test3);
+	show_alloc_mem();
+	test = malloc(len);
+	show_alloc_mem();
+	test3 = malloc(len);
+//	dump_alloc_mem(test);
+	show_alloc_mem();
 	return 0;
 }
