@@ -7,8 +7,8 @@
 
 # define TINY_ALLOCATION 1000
 # define SMALL_ALLOCATION 10000
-# define TINY_PAGE 100
-# define SMALL_PAGE 1000
+# define TINY_PAGE 10
+# define SMALL_PAGE 100
 
 typedef struct			memory_allocation
 {
@@ -21,6 +21,7 @@ typedef struct			memory_page
 {
 	void*						adress;
 	size_t						size;
+	size_t						empty_space;
 	struct memory_page 			*next;
 	struct memory_allocation	*content;
 }						memory_page;
@@ -31,6 +32,9 @@ typedef struct			memory_annuary
 	struct memory_page			*tiny;
 	struct memory_page			*small;
 	struct memory_page			*large;
+	struct memory_page			*last_tiny;
+	struct memory_page			*last_small;
+	struct memory_page			*last_large;
 }						memory_annuary;
 
 
@@ -50,9 +54,11 @@ void putstr(char *str);
 void	show_alloc_page(memory_page* page, char *type);
 void dump_content(unsigned char *memory, size_t len);
 int	dump_alloc_page(void *ad, memory_page* page, char *type);
-memory_page	*get_last_page(memory_page *page);
 void alloc_info();
 int	free_page(void* ad, memory_page *page);
 int is_in(memory_page* page, void *ad);
+void clean_page(memory_page **origin);
+void set_last_page(size_t len, memory_page *page);
+memory_page	*get_last_page(size_t len);
 
 #endif

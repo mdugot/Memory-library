@@ -21,15 +21,22 @@ void	show_alloc_memory(memory_allocation* mem)
 	show_alloc_memory(mem->next);
 }
 
-void	show_alloc_page(memory_page* page, char *type)
+void	show_alloc_page(memory_page* begin, char *type)
 {
-	if (!page)
-		return;
-	putstr(type);
-	putstr(" : ");
-	putint_endln((unsigned long long)page->adress, 16, "0x", 1);
-	show_alloc_memory(page->content);
-	show_alloc_page(page->next, type);
+	memory_page *page;
+
+	page = begin;
+	while (1)
+	{
+		if (!page)
+			return;
+		putstr(type);
+		putstr(" : ");
+		putint_endln((unsigned long long)page->adress, 16, "0x", 1);
+		show_alloc_memory(page->content);
+		page = page->next;
+		//show_alloc_page(page->next, type);
+	}
 }
 
 int	dump_alloc_memory(void *ad, memory_allocation* mem, char *type)

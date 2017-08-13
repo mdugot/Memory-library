@@ -44,11 +44,26 @@ size_t	get_page_size(size_t len)
 	return up_round(get_first_size(len));
 }
 
-memory_page	*get_last_page(memory_page *page)
+void set_last_page(size_t len, memory_page *page)
 {
-	if (!page)
-		return 0;
-	if (!page->next)
-		return page;
-	return get_last_page(page->next);
+	memory_annuary *annuary;
+
+	annuary =  get_annuary();
+	if (len <= TINY_ALLOCATION)
+		annuary->last_tiny = page;
+	if (len <= SMALL_ALLOCATION)
+		annuary->last_small = page;
+	annuary->last_large = page;
+}
+
+memory_page	*get_last_page(size_t len)
+{
+	memory_annuary *annuary;
+
+	annuary =  get_annuary();
+	if (len <= TINY_ALLOCATION)
+		return annuary->last_tiny;
+	if (len <= SMALL_ALLOCATION)
+		return annuary->last_small;
+	return annuary->last_large;
 }

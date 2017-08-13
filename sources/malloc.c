@@ -1,6 +1,6 @@
 #include "libft_malloc.h"
 
-static memory_annuary annuary = {0, 0, 0, 0};
+static memory_annuary annuary = {0, 0, 0, 0, 0, 0, 0};
 
 void alloc_info()
 {
@@ -125,6 +125,9 @@ void	dump_alloc_mem(void *ad)
 void	free(void *ad)
 {
 	free_page(ad, annuary.tiny);
+	clean_page(&(annuary.tiny));
 	free_page(ad, annuary.small);
+	clean_page(&(annuary.small));
 	free_page(ad, annuary.large);
+	clean_page(&(annuary.large));
 }
