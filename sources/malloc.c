@@ -131,3 +131,25 @@ void	free(void *ad)
 	free_page(ad, annuary.large);
 	clean_page(&(annuary.large));
 }
+
+void	*realloc(void *ad, size_t size)
+{
+	void *r;
+	memory_allocation *old;
+
+	old = 0;
+	if (!ad)
+		return malloc(size);
+	if (size == 0)
+	{
+		free(ad);
+		return 0;
+	}
+	if (!old && (r = realloc_page(ad, size, annuary.tiny, &old)))
+		return r;
+	if (!old && (r = realloc_page(ad, size, annuary.small, &old)))
+		return r;
+	if (!old && (r = realloc_page(ad, size, annuary.large, &old)))
+		return r;
+	return malloc(size);
+}

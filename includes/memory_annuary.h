@@ -60,5 +60,8 @@ int is_in(memory_page* page, void *ad);
 void clean_page(memory_page **origin);
 void set_last_page(size_t len, memory_page *page);
 memory_page	*get_last_page(size_t len);
+memory_allocation *find_in_page(void *ad, memory_page *begin, memory_allocation **alast, memory_page **apage);
+void *realloc_page(void *ad, size_t len, memory_page *begin);
+void delete_allocation(memory_page *page, memory_allocation *mem, memory_allocation *last);
 
 #endif
