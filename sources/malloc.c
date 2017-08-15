@@ -76,7 +76,7 @@ static void *malloc_on_page(size_t len, memory_page** page)
 	if (*page == 0)
 	{
 		size = get_page_size(len);
-		tmp_page = new_memory_page(0, size, len);
+		tmp_page = new_memory_page(0, size, len, page);
 		if (!tmp_page)
 			return 0;
 		*page = tmp_page;
@@ -125,19 +125,15 @@ void	dump_alloc_mem(void *ad)
 void	free(void *ad)
 {
 	free_page(ad, annuary.tiny);
-	clean_page(&(annuary.tiny));
 	free_page(ad, annuary.small);
-	clean_page(&(annuary.small));
 	free_page(ad, annuary.large);
-	clean_page(&(annuary.large));
 }
 
 void	*realloc(void *ad, size_t size)
 {
 	void *r;
-	memory_allocation *old;
 
-	old = 0;
+	r = 0;
 	if (!ad)
 		return malloc(size);
 	if (size == 0)
@@ -145,11 +141,11 @@ void	*realloc(void *ad, size_t size)
 		free(ad);
 		return 0;
 	}
-	if (!old && (r = realloc_page(ad, size, annuary.tiny, &old)))
+	if (!r && (r = realloc_page(ad, size, annuary.tiny)))
 		return r;
-	if (!old && (r = realloc_page(ad, size, annuary.small, &old)))
+	if (!r && (r = realloc_page(ad, size, annuary.small)))
 		return r;
-	if (!old && (r = realloc_page(ad, size, annuary.large, &old)))
+	if (!r && (r = realloc_page(ad, size, annuary.large)))
 		return r;
 	return malloc(size);
 }

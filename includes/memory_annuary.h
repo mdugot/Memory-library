@@ -23,6 +23,7 @@ typedef struct			memory_page
 	size_t						size;
 	size_t						empty_space;
 	struct memory_page 			*next;
+	struct memory_page 			**origin;
 	struct memory_allocation	*content;
 }						memory_page;
 
@@ -47,7 +48,7 @@ void *get_end(memory_allocation *m);
 size_t get_first_size(size_t len);
 size_t get_size(size_t len);
 memory_allocation	*create_allocation(memory_page *page, size_t len);
-memory_page	*new_memory_page(memory_page *last, size_t size, size_t len);
+memory_page	*new_memory_page(memory_page *last, size_t size, size_t len, memory_page **origin);
 void putint(unsigned long long int n, unsigned int base, char* prefix, int width);
 void putint_endln(unsigned long long int n, unsigned int base, char* prefix, int width);
 void putstr(char *str);
@@ -57,11 +58,12 @@ int	dump_alloc_page(void *ad, memory_page* page, char *type);
 void alloc_info();
 int	free_page(void* ad, memory_page *page);
 int is_in(memory_page* page, void *ad);
-void clean_page(memory_page **origin);
+void clean_page(memory_page *page);
 void set_last_page(size_t len, memory_page *page);
 memory_page	*get_last_page(size_t len);
 memory_allocation *find_in_page(void *ad, memory_page *begin, memory_allocation **alast, memory_page **apage);
-void *realloc_page(void *ad, size_t len, memory_page *begin);
 void delete_allocation(memory_page *page, memory_allocation *mem, memory_allocation *last);
+void *realloc_page(void *ad, size_t len, memory_page *begin);
+int	same_type(size_t lena, size_t lenb);
 
 #endif

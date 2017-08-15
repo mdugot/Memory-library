@@ -86,6 +86,7 @@ memory_allocation	*create_allocation(memory_page *page, size_t len)
 {
 	void *ad;
 	memory_page	*new_page;
+	memory_page	*last_page;
 	memory_allocation	*last;
 
 	last = 0;
@@ -98,7 +99,8 @@ memory_allocation	*create_allocation(memory_page *page, size_t len)
 	}
 	if (ad == 0)
 	{
-		new_page = new_memory_page(get_last_page(len), get_page_size(len), len);
+		last_page = get_last_page(len);
+		new_page = new_memory_page(last_page, get_page_size(len), len, &(last_page->next));
 		if (!new_page)
 			return 0;
 		return new_page->content;
@@ -106,7 +108,7 @@ memory_allocation	*create_allocation(memory_page *page, size_t len)
 	return new_allocation(ad, len, last, page);
 }
 
-memory_page	*new_memory_page(memory_page *last, size_t size, size_t len)
+memory_page	*new_memory_page(memory_page *last, size_t size, size_t len, memory_page **origin)
 {
 	memory_page page;
 	void *ad;
@@ -117,6 +119,7 @@ memory_page	*new_memory_page(memory_page *last, size_t size, size_t len)
 	page.empty_space = size;
 	page.content = 0;
 	page.next = 0;
+	page.origin = origin;
 	page.adress = mmap(0, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (page.adress == MAP_FAILED)
 		return 0;

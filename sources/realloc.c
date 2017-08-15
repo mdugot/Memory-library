@@ -1,29 +1,5 @@
 #include "libft_malloc.h"
 
-void *realloc_page(void *ad, size_t len, memory_page *begin, memory_allocation **amem)
-{
-	memory_allocation *mem;
-	memory_page *page;
-	memory_page *last;
-	size_t size;
-	void *end;
-
-	size = get_size(len);
-	mem = find_in_page(ad, begin, &last, &page);
-	if (!mem)
-		return 0;
-	if (mem->next)
-		end = mem->content;
-	else
-		end = get_end_page(page);
-	if (mem->content + len <= end)
-	{
-		mem->len = len;
-		return mem->content;
-	}
-	return move_alloc(mem, len, last, page);
-}
-
 void *move_alloc(memory_allocation *mem, size_t len, memory_allocation *last, memory_page *page)
 {
 	size_t copy_len;
@@ -39,4 +15,28 @@ void *move_alloc(memory_allocation *mem, size_t len, memory_allocation *last, me
 		delete_allocation(page, mem, last);
 	}
 	return ad;
+}
+
+void *realloc_page(void *ad, size_t len, memory_page *begin)
+{
+	memory_allocation *mem;
+	memory_allocation *last;
+	memory_page *page;
+	size_t size;
+	void *end;
+
+	size = get_size(len);
+	mem = find_in_page(ad, begin, &last, &page);
+	if (!mem)
+		return 0;
+	if (mem->next)
+		end = mem->content;
+	else
+		end = get_end_page(page);
+	if (same_type(mem->len, len) && mem->content + len <= end)
+	{
+		mem->len = len;
+		return mem->content;
+	}
+	return move_alloc(mem, len, last, page);
 }

@@ -67,3 +67,17 @@ memory_page	*get_last_page(size_t len)
 		return annuary->last_small;
 	return annuary->last_large;
 }
+
+int	same_type(size_t lena, size_t lenb)
+{
+	if (lena <= TINY_ALLOCATION && lenb <= TINY_ALLOCATION)
+		return 1;
+	if (lena > SMALL_ALLOCATION && lenb > SMALL_ALLOCATION)
+		return 1;
+	if (lena <= SMALL_ALLOCATION && lenb <= SMALL_ALLOCATION)
+	{
+		if (lena > TINY_ALLOCATION && lenb > TINY_ALLOCATION)
+			return 1;
+	}
+	return 0;
+}

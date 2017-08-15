@@ -7,19 +7,8 @@ void delete_allocation(memory_page *page, memory_allocation *mem, memory_allocat
 		page->content = mem->next;
 	else
 		last->next = mem->next;
+	clean_page(page);
 }
-
-/*static int	free_allocation(memory_page *page, memory_allocation *mem, void *ad, memory_allocation *last)
-{
-	if (!mem)
-		return 0;
-	if (mem->content == ad)
-	{
-		delete_allocation(page, mem, last);
-		return 1;
-	}
-	return free_allocation(page, mem->next, ad, mem);
-}*/
 
 int	free_page(void* ad, memory_page *begin)
 {
@@ -34,36 +23,12 @@ int	free_page(void* ad, memory_page *begin)
 		return 1;
 	}
 	return 0;
-
-/*	page = begin;
-	while (1)
-	{
-		if (!page)
-			return 0;
-		if (is_in(page, ad) && free_allocation(page, page->content, ad, 0))
-			return 1;
-		page = page->next;
-	}*/
 }
 
-void clean_page(memory_page **origin)
+void clean_page(memory_page *page)
 {
-	memory_page* page;
-	memory_page* next;
-	memory_page** next_origin;
-
-	page = *origin;
-	if (!page)
+	if (!page || page->content)
 		return;
-	next = page->next;
-	next_origin = &(page->next);
-	if (!page->content)
-	{
-		if (munmap(page->adress, page->size) == 0)
-		{
-			next_origin = origin;
-			*origin = next;
-		}
-	}
-	clean_page(next_origin);
+	*(page->origin) = page->next;
+	munmap(page->adress, page->size);
 }
