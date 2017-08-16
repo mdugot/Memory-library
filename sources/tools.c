@@ -51,9 +51,10 @@ void set_last_page(size_t len, memory_page *page)
 	annuary =  get_annuary();
 	if (len <= TINY_ALLOCATION)
 		annuary->last_tiny = page;
-	if (len <= SMALL_ALLOCATION)
+	else if (len <= SMALL_ALLOCATION)
 		annuary->last_small = page;
-	annuary->last_large = page;
+	else
+		annuary->last_large = page;
 }
 
 memory_page	*get_last_page(size_t len)

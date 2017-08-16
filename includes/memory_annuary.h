@@ -7,8 +7,8 @@
 
 # define TINY_ALLOCATION 1000
 # define SMALL_ALLOCATION 10000
-# define TINY_PAGE 10
-# define SMALL_PAGE 100
+# define TINY_PAGE 100
+# define SMALL_PAGE 1000
 
 typedef struct			memory_allocation
 {
@@ -19,11 +19,11 @@ typedef struct			memory_allocation
 
 typedef struct			memory_page
 {
-	void*						adress;
+	struct memory_page*			adress;
 	size_t						size;
 	size_t						empty_space;
 	struct memory_page 			*next;
-	struct memory_page 			**origin;
+	struct memory_page 			*last;
 	struct memory_allocation	*content;
 }						memory_page;
 
@@ -48,7 +48,7 @@ void *get_end(memory_allocation *m);
 size_t get_first_size(size_t len);
 size_t get_size(size_t len);
 memory_allocation	*create_allocation(memory_page *page, size_t len);
-memory_page	*new_memory_page(memory_page *last, size_t size, size_t len, memory_page **origin);
+memory_page	*new_memory_page(memory_page *last, size_t size, size_t len);
 void putint(unsigned long long int n, unsigned int base, char* prefix, int width);
 void putint_endln(unsigned long long int n, unsigned int base, char* prefix, int width);
 void putstr(char *str);
@@ -65,5 +65,10 @@ memory_allocation *find_in_page(void *ad, memory_page *begin, memory_allocation 
 void delete_allocation(memory_page *page, memory_allocation *mem, memory_allocation *last);
 void *realloc_page(void *ad, size_t len, memory_page *begin);
 int	same_type(size_t lena, size_t lenb);
+pthread_mutex_t	*get_mutex();
+void lock();
+void unlock();
+void *do_malloc(size_t len);
+void	do_free(void *ad);
 
 #endif

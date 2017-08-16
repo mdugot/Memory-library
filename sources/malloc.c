@@ -1,6 +1,7 @@
 #include "libft_malloc.h"
 
 static memory_annuary annuary = {0, 0, 0, 0, 0, 0, 0};
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void alloc_info()
 {
@@ -67,6 +68,11 @@ memory_annuary	*get_annuary()
 	return &annuary;
 }
 
+pthread_mutex_t	*get_mutex()
+{
+	return &mutex;
+}
+
 static void *malloc_on_page(size_t len, memory_page** page)
 {
 	memory_page *tmp_page;
@@ -76,7 +82,7 @@ static void *malloc_on_page(size_t len, memory_page** page)
 	if (*page == 0)
 	{
 		size = get_page_size(len);
-		tmp_page = new_memory_page(0, size, len, page);
+		tmp_page = new_memory_page(0, size, len);
 		if (!tmp_page)
 			return 0;
 		*page = tmp_page;
@@ -88,7 +94,7 @@ static void *malloc_on_page(size_t len, memory_page** page)
 	return tmp_mem->content;
 }
 
-void *malloc(size_t len)
+void *do_malloc(size_t len)
 {
 	if (len == 0)
 		return 0;
@@ -99,6 +105,16 @@ void *malloc(size_t len)
 	if (len <= SMALL_ALLOCATION)
 		return malloc_on_page(len, &(annuary.small));
 	return malloc_on_page(len, &(annuary.large));
+}
+
+void *malloc(size_t len)
+{
+	void *ad;
+
+	lock();
+	ad = do_malloc(len);
+	unlock();
+	return ad;
 }
 
 void	show_alloc_mem()
@@ -124,21 +140,28 @@ void	dump_alloc_mem(void *ad)
 
 void	free(void *ad)
 {
+	lock();
+	do_free(ad);
+	unlock();
+}
+
+void	do_free(void *ad)
+{
 	free_page(ad, annuary.tiny);
 	free_page(ad, annuary.small);
 	free_page(ad, annuary.large);
 }
 
-void	*realloc(void *ad, size_t size)
+void	*do_realloc(void *ad, size_t size)
 {
 	void *r;
 
 	r = 0;
 	if (!ad)
-		return malloc(size);
+		return do_malloc(size);
 	if (size == 0)
 	{
-		free(ad);
+		do_free(ad);
 		return 0;
 	}
 	if (!r && (r = realloc_page(ad, size, annuary.tiny)))
@@ -147,5 +170,15 @@ void	*realloc(void *ad, size_t size)
 		return r;
 	if (!r && (r = realloc_page(ad, size, annuary.large)))
 		return r;
-	return malloc(size);
+	return do_malloc(size);
+}
+
+void *realloc(void *ad, size_t len)
+{
+	void *r;
+
+	lock();
+	r = do_realloc(ad, len);
+	unlock();
+	return r;
 }

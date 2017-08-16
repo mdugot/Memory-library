@@ -1,6 +1,7 @@
 #ifndef LIBFT_MALLOC_H
 # define LIBFT_MALLOC_H
 
+#include <pthread.h>
 # include "memory_annuary.h"
 
 void *malloc(size_t len);

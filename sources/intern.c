@@ -7,8 +7,8 @@ static void	*free_space_at_first(memory_page *page, size_t len)
 	size = get_size(len);
 	if (!page->content)
 		return (page->adress + sizeof(memory_page));
-	if ((void*)page->content - page->adress - sizeof(memory_page) >= size)
-		return (page->adress + sizeof(memory_page));
+	if ((void*)page->content - (void*)page->adress - sizeof(memory_page) >= size)
+		return ((void*)page->adress + sizeof(memory_page));
 	return 0;
 }
 
@@ -78,7 +78,6 @@ static memory_allocation	*new_allocation(void *ad, size_t len, memory_allocation
 	}
 	page->empty_space -= get_size(len);
 	copy_memory(ad, (char*)&mem, sizeof(memory_allocation));
-	//clean_memory(mem.content, mem.len);
 	return ad;
 }
 
@@ -100,7 +99,7 @@ memory_allocation	*create_allocation(memory_page *page, size_t len)
 	if (ad == 0)
 	{
 		last_page = get_last_page(len);
-		new_page = new_memory_page(last_page, get_page_size(len), len, &(last_page->next));
+		new_page = new_memory_page(last_page, get_page_size(len), len);
 		if (!new_page)
 			return 0;
 		return new_page->content;
@@ -108,7 +107,7 @@ memory_allocation	*create_allocation(memory_page *page, size_t len)
 	return new_allocation(ad, len, last, page);
 }
 
-memory_page	*new_memory_page(memory_page *last, size_t size, size_t len, memory_page **origin)
+memory_page	*new_memory_page(memory_page *last, size_t size, size_t len)
 {
 	memory_page page;
 	void *ad;
@@ -119,7 +118,7 @@ memory_page	*new_memory_page(memory_page *last, size_t size, size_t len, memory_
 	page.empty_space = size;
 	page.content = 0;
 	page.next = 0;
-	page.origin = origin;
+	page.last = last;
 	page.adress = mmap(0, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (page.adress == MAP_FAILED)
 		return 0;
@@ -127,7 +126,7 @@ memory_page	*new_memory_page(memory_page *last, size_t size, size_t len, memory_
 		last->next = page.adress;
 	ad = page.adress + sizeof(memory_page);
 	new_allocation(ad, len, 0, &page);
-	copy_memory(page.adress, (char*)&page, sizeof(memory_page));
+	copy_memory((void*)page.adress, (char*)&page, sizeof(memory_page));
 	set_last_page(len, page.adress);
 	return page.adress;
 }

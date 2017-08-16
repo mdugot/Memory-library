@@ -8,7 +8,7 @@ LINK= lib$(PREFIX).so
 CC= gcc
 CFLAGS= -fno-builtin -Wall -Werror -Wextra
 SRC_NAME= malloc.c memory.c tools.c intern.c show.c print.c free.c find.c \
-          realloc.c
+          realloc.c lock.c
 SRC_PATH= ./sources/
 INC_PATH= ./includes/
 OBJ_NAME= $(SRC_NAME:.c=.o)
@@ -50,4 +50,4 @@ check:
 .PHONY: test
 test:
 	rm -f test
-	$(CC) $(CFLAGS) -I$(INC_PATH)  -L. -l$(PREFIX) -o test test.c
+	$(CC) $(CFLAGS) -I$(INC_PATH) -L. -l$(PREFIX) -lpthread -o test test.c
