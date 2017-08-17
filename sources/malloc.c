@@ -119,14 +119,16 @@ void *malloc(size_t len)
 
 void	show_alloc_mem()
 {
+	lock();
 	if (!annuary.tiny && !annuary.small && ! annuary.large)
 		putstr("NO MEMORY ALLOCATION\n");
 	show_alloc_page(annuary.tiny, "TINY");
 	show_alloc_page(annuary.small, "SMALL");
 	show_alloc_page(annuary.large, "LARGE");
+	unlock();
 }
 
-void	dump_alloc_mem(void *ad)
+void	do_dump_alloc_mem(void *ad)
 {
 	if (dump_alloc_page(ad, annuary.tiny, "TINY"))
 		return ;
@@ -136,6 +138,13 @@ void	dump_alloc_mem(void *ad)
 		return ;
 	putint((unsigned long long)ad, 16, "0x", 1);
 	putstr(" : no memory allocation to this adress\n");
+}
+
+void	dump_alloc_mem(void *ad)
+{
+	lock();
+	do_dump_alloc_mem(ad);
+	unlock();
 }
 
 void	free(void *ad)

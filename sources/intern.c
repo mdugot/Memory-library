@@ -19,7 +19,9 @@ static void	*search_in_page(memory_page *page, memory_allocation *last, size_t s
 	if (last->next)
 	{
 		if ((size_t)((void*)last->next - get_end(last)) >= size)
+		{
 			return get_end(last);
+		}
 		return search_in_page(page, last->next, size, alast);
 	}
 	else if ((size_t)(get_end_page(page) - get_end(last)) >= size)
