@@ -34,7 +34,7 @@ void *realloc_page(void *ad, size_t len, memory_page *begin)
 		end = mem->content;
 	else
 		end = get_end_page(page);
-	if (same_type(mem->len, len) && mem->content + len <= end)
+	if (same_type(mem->len, len) && mem->content + len <= (BYTE*)end)
 	{
 		mem->len = len;
 		return mem->content;

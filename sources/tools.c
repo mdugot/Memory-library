@@ -17,7 +17,7 @@ void *get_end(memory_allocation *m)
 
 void *get_end_page(memory_page *p)
 {
-	return p->adress + p->size;
+	return (BYTE*)p->adress + p->size;
 }
 
 static size_t	up_round(size_t len)

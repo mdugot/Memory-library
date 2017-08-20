@@ -39,22 +39,6 @@ void	show_alloc_page(memory_page* begin, char *type)
 	}
 }
 
-/*int	dump_alloc_memory(void *ad, memory_allocation* mem, char *type)
-{
-
-	if (!mem)
-		return 0;
-	if (ad >= mem->content && ad < mem->content + mem->len)
-	{
-		putstr(type);
-		putstr(" : ");
-		print_memory_head(mem);
-		dump_content(mem->content, mem->len);
-		return 1;
-	}
-	return dump_alloc_memory(ad, mem->next, type);
-}*/
-
 int	dump_alloc_page(void *ad, memory_page* page, char *type)
 {
 	memory_allocation *mem;
@@ -62,17 +46,19 @@ int	dump_alloc_page(void *ad, memory_page* page, char *type)
 	mem = find_in_page(ad, page, 0, 0);
 	if (mem)
 	{
+		logint((unsigned long long)sizeof(memory_page), 10, "size of page = ", 1);
+		logint((unsigned long long)sizeof(memory_allocation), 10, "size of alloc = ", 1);
+		logint((unsigned long long)page, 16, "page = 0x", 1);
+		logint((unsigned long long)mem, 16, "alloc = 0x", 1);
+		logint((unsigned long long)mem->len, 10, "len = ", 1);
+		logint((unsigned long long)mem->content, 16, "adress = 0x", 1);
 		putstr(type);
 		putstr(" : ");
 		print_memory_head(mem);
-		dump_content(mem->content, mem->len);
+//		log("dump content\n");
+		dump_content((unsigned char*)mem->content, mem->len);
+//		log("end dump content\n");
 		return 1;
 	}
 	return 0;
-
-/*	if (!page)
-		return 0;
-	if (is_in(page, ad) && dump_alloc_memory(ad, page->content, type))
-		return 1;
-	return dump_alloc_page(ad, page->next, type);*/
 }

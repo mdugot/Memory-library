@@ -4,11 +4,13 @@ static void	*free_space_at_first(memory_page *page, size_t len)
 {
 	size_t size;
 
+	if (len > SMALL_ALLOCATION)
+		return 0;
 	size = get_size(len);
 	if (!page->content)
 		return (page->adress + sizeof(memory_page));
-	if ((void*)page->content - (void*)page->adress - sizeof(memory_page) >= size)
-		return ((void*)page->adress + sizeof(memory_page));
+	if ((BYTE*)page->content - (BYTE*)page->adress - sizeof(memory_page) >= size)
+		return ((BYTE*)page->adress + sizeof(memory_page));
 	return 0;
 }
 
@@ -64,7 +66,7 @@ static memory_allocation	*new_allocation(void *ad, size_t len, memory_allocation
 {
 	memory_allocation	mem;
 
-	mem.content = ad + sizeof(memory_allocation);
+	mem.content = (BYTE*)ad + sizeof(memory_allocation);
 	mem.len = len;
 	mem.next = 0;
 	if (last)
@@ -79,7 +81,7 @@ static memory_allocation	*new_allocation(void *ad, size_t len, memory_allocation
 		page->content = ad;
 	}
 	page->empty_space -= get_size(len);
-	copy_memory(ad, (char*)&mem, sizeof(memory_allocation));
+	copy_memory(ad, (BYTE*)&mem, sizeof(memory_allocation));
 	return ad;
 }
 
@@ -112,7 +114,7 @@ memory_allocation	*create_allocation(memory_page *page, size_t len)
 memory_page	*new_memory_page(memory_page *last, size_t size, size_t len)
 {
 	memory_page page;
-	void *ad;
+	BYTE *ad;
 
 	if (size <= len)
 		return 0;
@@ -121,14 +123,20 @@ memory_page	*new_memory_page(memory_page *last, size_t size, size_t len)
 	page.content = 0;
 	page.next = 0;
 	page.last = last;
+	logint((unsigned long long)len, 10, "MMAP LEN -------> ", 1);
+	logint((unsigned long long)size, 10, "MMAP SIZE -------> ", 1);
 	page.adress = mmap(0, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (page.adress == MAP_FAILED)
 		return 0;
 	if (last)
 		last->next = page.adress;
-	ad = page.adress + sizeof(memory_page);
+	logint((unsigned long long)page.adress, 16, "MMAP RESULT -------> 0x", 1);
+	logint((unsigned long long)sizeof(memory_page), 16, "SIZE OF PAGE -------> ", 1);
+	ad = (BYTE*)page.adress + sizeof(memory_page);
+	logint((unsigned long long)ad, 16, "AD -------> 0x", 1);
 	new_allocation(ad, len, 0, &page);
-	copy_memory((void*)page.adress, (char*)&page, sizeof(memory_page));
+	copy_memory((void*)page.adress, (BYTE*)&page, sizeof(memory_page));
 	set_last_page(len, page.adress);
+	logint((unsigned long long)page.content, 16, "PAGE CONTENT 1 -------> 0x", 1);
 	return page.adress;
 }

@@ -9,10 +9,11 @@
 # define SMALL_ALLOCATION 10000
 # define TINY_PAGE 100
 # define SMALL_PAGE 1000
+# define BYTE unsigned char
 
 typedef struct			memory_allocation
 {
-	void*						content;
+	BYTE*						content;
 	size_t						len;
 	struct memory_allocation 	*next;
 }						memory_allocation;
@@ -40,8 +41,8 @@ typedef struct			memory_annuary
 
 
 memory_annuary	*get_annuary();
-void clean_memory(char* ad, size_t len);
-void copy_memory(char* ad, char *mem, size_t len);
+void clean_memory(BYTE* ad, size_t len);
+void copy_memory(BYTE* ad, BYTE *mem, size_t len);
 size_t	get_page_size(size_t len);
 void *get_end_page(memory_page *p);
 void *get_end(memory_allocation *m);
@@ -53,7 +54,7 @@ void putint(unsigned long long int n, unsigned int base, char* prefix, int width
 void putint_endln(unsigned long long int n, unsigned int base, char* prefix, int width);
 void putstr(char *str);
 void	show_alloc_page(memory_page* page, char *type);
-void dump_content(unsigned char *memory, size_t len);
+void dump_content(BYTE *memory, size_t len);
 int	dump_alloc_page(void *ad, memory_page* page, char *type);
 void alloc_info();
 int	free_page(void* ad, memory_page *page);
@@ -70,5 +71,7 @@ void lock();
 void unlock();
 void *do_malloc(size_t len);
 void	do_free(void *ad);
+void log(char *str);
+void logint(unsigned long long int n, unsigned int base, char* prefix, int width);
 
 #endif
