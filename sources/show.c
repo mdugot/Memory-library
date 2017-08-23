@@ -26,10 +26,8 @@ void	show_alloc_page(memory_page* begin, char *type)
 	memory_page *page;
 
 	page = begin;
-	while (1)
+	while (page)
 	{
-		if (!page)
-			return;
 		putstr(type);
 		putstr(" : ");
 		putint_endln((unsigned long long)page->adress, 16, "0x", 1);
