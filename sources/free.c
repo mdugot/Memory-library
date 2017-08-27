@@ -4,7 +4,7 @@ void delete_allocation(memory_page *page, memory_allocation *mem, memory_allocat
 {
 	page->empty_space += get_size(mem->len);
 	if (!last)
-		page->content = mem->next;
+		CP(page) = mem->next;
 	else
 		last->next = mem->next;
 	clean_page(page);
@@ -46,12 +46,13 @@ void clean_annuary(memory_page *page)
 
 void clean_page(memory_page *page)
 {
-	if (!page || page->content)
+	if (!page || CP(page) || is_first_page(page))
 		return;
 	if (page->next)
 		page->next->last = page->last;
 	if (page->last)
 		page->last->next = page->next;
 	clean_annuary(page);
+	plog("UNMAP\n");
 	munmap(page->adress, page->size);
 }

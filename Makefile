@@ -50,4 +50,4 @@ check:
 .PHONY: test
 test:
 	rm -f test
-	$(CC) $(CFLAGS) -I$(INC_PATH) -L. -l$(PREFIX) -lpthread -o test test.c
+	$(CC) $(CFLAGS) -I$(INC_PATH) -L. -l$(PREFIX) -lpthread -o test bigtest.c

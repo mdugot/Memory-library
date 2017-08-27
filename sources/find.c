@@ -4,7 +4,7 @@ static memory_allocation*	find_allocation(memory_page *page, memory_allocation *
 {
 	if (!mem)
 		return 0;
-	if (mem->content == ad)
+	if (CM(mem) == ad)
 		return mem;
 	if (alast)
 		*alast = mem;
@@ -27,7 +27,7 @@ memory_allocation *find_in_page(void *ad, memory_page *begin, memory_allocation 
 	{
 		if (is_in(page, ad))
 		{
-			result = find_allocation(page, page->content, ad, 0, 0);
+			result = find_allocation(page, CP(page), ad, 0, 0);
 			if (result)
 			{
 				if (apage)

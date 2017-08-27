@@ -12,7 +12,7 @@ size_t get_first_size(size_t len)
 
 void *get_end(memory_allocation *m)
 {
-	return m->content + m->len;
+	return CM(m) + m->len;
 }
 
 void *get_end_page(memory_page *p)
@@ -80,5 +80,31 @@ int	same_type(size_t lena, size_t lenb)
 		if (lena > TINY_ALLOCATION && lenb > TINY_ALLOCATION)
 			return 1;
 	}
+	return 0;
+}
+
+BYTE *content(BYTE *ad, size_t len)
+{
+	return ad + len;
+}
+
+int get_number_page(memory_page *page, int n)
+{
+	if (!page)
+		return n;
+	return get_number_page(page->next, n+1);
+}
+
+int is_first_page(memory_page *page)
+{
+	memory_annuary *annuary;
+
+	annuary = get_annuary();
+	if (annuary->tiny == page)
+		return 1;
+	if (annuary->small == page)
+		return 1;
+	if (annuary->large == page)
+		return 1;
 	return 0;
 }

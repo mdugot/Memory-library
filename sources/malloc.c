@@ -3,65 +3,6 @@
 static memory_annuary annuary = {0, 0, 0, 0, 0, 0, 0};
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
-void alloc_info()
-{
-	struct rlimit rl;
-	size_t ps = getpagesize();
-	putstr("\n------------\n");
-	putstr("page size : ");
-	putint_endln(ps, 10, "", 1);
-	if (getrlimit(RLIMIT_DATA, &rl) == -1)
-		putstr("error getrlimit\n");
-	putstr("data limit current : ");
-	putint_endln(rl.rlim_cur, 16, "", 1);
-	putstr("data limit max : ");
-	putint_endln(rl.rlim_max, 16, "", 1);
-	if (getrlimit(RLIMIT_MEMLOCK, &rl) == -1)
-		putstr("error getrlimit\n");
-	putstr("melock limit current : ");
-	putint_endln(rl.rlim_cur, 16, "", 1);
-	putstr("memlock limit max : ");
-	putint_endln(rl.rlim_max, 16, "", 1);
-	if (getrlimit(RLIMIT_RSS, &rl) == -1)
-		putstr("error getrlimit\n");
-	putstr("rss limit current : ");
-	putint_endln(rl.rlim_cur, 16, "", 1);
-	putstr("rss limit max : ");
-	putint_endln(rl.rlim_max, 16, "", 1);
-
-	putstr("------------\n\n");
-}
-
-void test() {
-
-	alloc_info();
-
-	size_t len = 32;
-	unsigned char *ad = mmap(0, len, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
-	unsigned char *ad2 = mmap(0, len, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
-	if (ad == MAP_FAILED)
-		putstr("map failed\n");
-	putstr("adress : ");
-	putint_endln((long long int)ad, 16, "", 1);
-	ad[3] = '*';
-	ad2[1] = 'a';
-	putstr("content : \n");
-	dump_content(ad, len);
-	putstr("adress second map : ");
-	putint_endln((long long int)ad2, 16, "", 1);
-	putstr("content second map: \n");
-	dump_content(ad2, len);
-	if (munmap(ad, len) == -1)
-		putstr("munmap error");
-	unsigned char *ad3 = mmap(0, len, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED, -1, 0);
-	ad3[16] = ' ';
-	putstr("adress third map after unmap: ");
-	putint_endln((long long int)ad3, 16, "", 1);
-	putstr("content third map after unmap: \n");
-	dump_content(ad3, len);
-
-	alloc_info();
-}
 
 memory_annuary	*get_annuary()
 {
@@ -86,12 +27,12 @@ static void *malloc_on_page(size_t len, memory_page** page)
 		if (!tmp_page)
 			return 0;
 		*page = tmp_page;
-		return (tmp_page->content->content);
+		return (CM(CP(tmp_page)));
 	}
 	tmp_mem = create_allocation(*page, len);
 	if (!tmp_mem)
 		return 0;
-	return tmp_mem->content;
+	return CM(tmp_mem);
 }
 
 void *do_malloc(size_t len)
@@ -111,9 +52,11 @@ void *malloc(size_t len)
 {
 	void *ad;
 
+//	putint_endln((unsigned long long)len, 10, "malloc : ", 1);
 	lock();
 	ad = do_malloc(len);
 	unlock();
+//	plog("end malloc\n");
 	return ad;
 }
 
@@ -149,9 +92,11 @@ void	dump_alloc_mem(void *ad)
 
 void	free(void *ad)
 {
+//	putint_endln((unsigned long long)ad, 16, "free : 0x", 1);
 	lock();
 	do_free(ad);
 	unlock();
+//	plog("end free\n");
 }
 
 void	do_free(void *ad)
@@ -179,15 +124,17 @@ void	*do_realloc(void *ad, size_t size)
 		return r;
 	if (!r && (r = realloc_page(ad, size, annuary.large)))
 		return r;
-	return do_malloc(size);
+	return 0;
 }
 
 void *realloc(void *ad, size_t len)
 {
 	void *r;
 
+//	putint_endln((unsigned long long)ad, 16, "realloc : 0x", 1);
 	lock();
 	r = do_realloc(ad, len);
 	unlock();
+//	plog("end realloc\n");
 	return r;
 }

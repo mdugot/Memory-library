@@ -12,7 +12,7 @@ void *move_alloc(memory_allocation *mem, size_t len, memory_allocation *last, me
 		if (mem->len > len)
 			copy_len = len;
 		if (ad)
-			copy_memory(ad, mem->content, copy_len);
+			copy_memory(ad, CM(mem), copy_len);
 		delete_allocation(page, mem, last);
 	}
 	return ad;
@@ -31,13 +31,13 @@ void *realloc_page(void *ad, size_t len, memory_page *begin)
 	if (!mem)
 		return 0;
 	if (mem->next)
-		end = mem->content;
+		end = CM(mem);
 	else
 		end = get_end_page(page);
-	if (same_type(mem->len, len) && mem->content + len <= (BYTE*)end)
+	if (same_type(mem->len, len) && CM(mem) + len <= (BYTE*)end)
 	{
 		mem->len = len;
-		return mem->content;
+		return CM(mem);
 	}
 	return move_alloc(mem, len, last, page);
 }

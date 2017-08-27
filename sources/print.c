@@ -1,6 +1,6 @@
 #include "libft_malloc.h"
 
-void log(char *str)
+void plog(char *str)
 {
 	int i = 0;
 	while (str[i] != 0)
@@ -88,7 +88,7 @@ void dump_content(unsigned char *memory, size_t len)
 	while (i < len) {
 //		logint((unsigned long long)i, 10, "index = ", 1);
 //		logint((unsigned long long)len, 10, "len = ", 1);
-//		putint((unsigned long long)memory[i], 16, "", 2);
+		putint((unsigned long long)memory[i], 16, "", 2);
 		char debug = memory[i];
 		(void)debug;
 		putstr(" ");

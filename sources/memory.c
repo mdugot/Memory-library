@@ -26,11 +26,11 @@ void clean_memory(BYTE* ad, size_t len)
 
 int is_in(memory_page* page, void *ad)
 {
-	if (!page->content)
+	if (!CP(page))
 		return 0;
-	if ((BYTE*)ad < (BYTE*)page->content)
+	if ((BYTE*)ad < (BYTE*)CP(page))
 		return 0;
-	if ((BYTE*)ad >= (BYTE*)page->adress + page->size)
+	if ((BYTE*)ad >= (BYTE*)CP(page) + page->size)
 		return 0;
 	return 1;
 }

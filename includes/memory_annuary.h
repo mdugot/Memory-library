@@ -5,15 +5,18 @@
 # include <sys/mman.h>
 # include <sys/resource.h>
 
-# define TINY_ALLOCATION 1000
-# define SMALL_ALLOCATION 10000
-# define TINY_PAGE 100
-# define SMALL_PAGE 1000
+# define TINY_ALLOCATION 0x500
+# define SMALL_ALLOCATION 0x5000
+# define TINY_PAGE 0x40
+# define SMALL_PAGE 0x400
 # define BYTE unsigned char
+# define CM(m) content((unsigned char*)m, sizeof(memory_allocation))
+//# define CP(p) ((memory_allocation*)content(p, sizeof(memory_page))
+# define CP(p) p->content
 
 typedef struct			memory_allocation
 {
-	BYTE*						content;
+//	BYTE*						content;
 	size_t						len;
 	struct memory_allocation 	*next;
 }						memory_allocation;
@@ -71,7 +74,10 @@ void lock();
 void unlock();
 void *do_malloc(size_t len);
 void	do_free(void *ad);
-void log(char *str);
+void plog(char *str);
 void logint(unsigned long long int n, unsigned int base, char* prefix, int width);
+BYTE *content(BYTE *ad, size_t len);
+int get_number_page(memory_page *page, int n);
+int is_first_page(memory_page *page);
 
 #endif
