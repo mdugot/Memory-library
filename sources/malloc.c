@@ -71,23 +71,27 @@ void	show_alloc_mem()
 	unlock();
 }
 
-void	do_dump_alloc_mem(void *ad)
+int	do_dump_alloc_mem(void *ad)
 {
 	if (dump_alloc_page(ad, annuary.tiny, "TINY"))
-		return ;
+		return 1;
 	if (dump_alloc_page(ad, annuary.small, "SMALL"))
-		return ;
+		return 1;
 	if (dump_alloc_page(ad, annuary.large, "LARGE"))
-		return ;
+		return 1;
 	putint((unsigned long long)ad, 16, "0x", 1);
 	putstr(" : no memory allocation to this adress\n");
+	return 0;
 }
 
-void	dump_alloc_mem(void *ad)
+int	dump_alloc_mem(void *ad)
 {
+	int r;
+
 	lock();
-	do_dump_alloc_mem(ad);
+	r = do_dump_alloc_mem(ad);
 	unlock();
+	return r;
 }
 
 void	free(void *ad)

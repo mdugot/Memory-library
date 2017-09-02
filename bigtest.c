@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 
-#define NTHREAD 30
+#define NTHREAD 20
 #define MIN_SIZE 1
 #define MAX_SIZE 500000
 #define MAX_FAIL 10000000000000000
@@ -32,14 +32,11 @@ void unulock()
 
 void fill(unsigned char *ad, size_t len, unsigned char c)
 {
+	if (NTHREAD > 0) return;
 	if (!ad)
 		return;
-	if (inuse)
-		return;
-	ulock(ad);
 	for(size_t i = 0; i < len; i++)
 		ad[i] = c;
-	unulock();
 }
 
 size_t nrandom(size_t min, size_t max)
@@ -77,14 +74,9 @@ void free_memory(unsigned char *mem[])
 	dprintf(2, "free : begin\n");
 	int n = nrandom(0, N);
 	dprintf(2, "free : %p\n", mem[n]);
-	void *tmp = mem[n];
-	if (inuse == mem[n])
-		return;
 	free(mem[n]);
 	mem[n] = 0;
 	dprintf(2, "free : end\n");
-	if (inuse == tmp)
-		inuse = 0;
 }
 
 void list_memory()
@@ -100,13 +92,8 @@ void random_realloc(unsigned char *mem[])
 	int n = nrandom(0, N);
 	size_t len = rsize();
 	dprintf(2, "realloc : %zu -> %p\n", len, mem[n]);
-	void *tmp = mem[n];
-	if (inuse == mem[n])
-		return;
 	mem[n] = realloc(mem[n], len);
 	dprintf(2, "realloc : end\n");
-	if (inuse == tmp)
-		inuse = 0;
 }
 
 void alloc_memory(unsigned char *mem[])

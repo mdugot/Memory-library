@@ -6,7 +6,7 @@
 
 void *malloc(size_t len);
 void	show_alloc_mem();
-void	dump_alloc_mem(void *ad);
+int	dump_alloc_mem(void *ad);
 void	free(void *ad);
 void	*realloc(void *ad, size_t size);
 
